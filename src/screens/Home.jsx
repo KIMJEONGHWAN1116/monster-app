@@ -1,94 +1,105 @@
 import {
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import {
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-import Icon from "react-native-vector-icons/Ionicons";
-
-import colors from "../styles/colors";
 
 export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
-      
-      {/* Header */}
       <View style={styles.header}>
-        <Icon name="menu" size={34} color={colors.pink} />
+        <TouchableOpacity>
+          <Feather name="menu" size={34} color="#f7c7d3" />
+        </TouchableOpacity>
 
         <Text style={styles.headerTitle}>マイモンスター</Text>
 
-        <Icon name="notifications-outline" size={30} color={colors.pink} />
+        <TouchableOpacity>
+          <Ionicons
+            name="notifications-outline"
+            size={30}
+            color="#f7c7d3"
+          />
+        </TouchableOpacity>
       </View>
 
-      {/* line */}
       <View style={styles.line} />
 
-      {/* monster name */}
-      <Text style={styles.monsterName}>モンスターの名前</Text>
+      <View style={styles.content}>
+        <Text style={styles.monsterName}>モンスターの名前</Text>
 
-      {/* stars */}
-      <Text style={styles.star1}>⭐</Text>
-      <Text style={styles.star2}>⭐</Text>
-      <Text style={styles.star3}>⭐</Text>
-      <Text style={styles.star4}>⭐</Text>
-
-      {/* monster */}
-      <Image
-        source={require("../assets/monster.png")}
-        style={styles.monster}
-      />
-
-      {/* heart bubble */}
-      <View style={styles.chatBubble}>
-        <Text style={styles.heart}>💗</Text>
-      </View>
-
-      {/* status card */}
-      <View style={styles.statusCard}>
-        <Text style={styles.hungryText}>
-          おなか <Text style={styles.percent}>70%</Text>
-        </Text>
-
-        <View style={styles.progressBg}>
-          <View style={styles.progress} />
+        <View style={styles.starsContainer}>
+          <Text style={styles.star}>✦</Text>
+          <Text style={styles.star}>✦</Text>
+          <Text style={styles.starBig}>✦</Text>
+          <Text style={styles.star}>✦</Text>
+          <Text style={styles.star}>✦</Text>
+          <Text style={styles.star}>✦</Text>
         </View>
+
+        <Image
+          source={{
+            uri: "https://i.imgur.com/4AiXzf8.png",
+          }}
+          style={styles.monster}
+        />
+
+        <View style={styles.heartBubble}>
+          <Text style={styles.heart}>💗</Text>
+        </View>
+
+        <View style={styles.statusBox}>
+          <Text style={styles.statusText}>おなか 70%</Text>
+
+          <View style={styles.progressBar}>
+            <View style={styles.progressFill} />
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.feedButton}>
+          <Text style={styles.feedButtonText}>
+            それ、食べていい？
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* button */}
-      <TouchableOpacity style={styles.feedButton}>
-        <Text style={styles.feedText}>それ、食べていい？</Text>
-      </TouchableOpacity>
-
-      {/* bottom nav */}
       <View style={styles.bottomNav}>
-        <View style={styles.navItem}>
-          <Icon name="home" size={28} color={colors.pink} />
-          <Text style={styles.navText}>ホーム</Text>
-        </View>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="home" size={28} color="#f7a9bc" />
+          <Text style={styles.navTextActive}>ホーム</Text>
+        </TouchableOpacity>
 
-        <View style={styles.navItem}>
-          <Icon name="book-outline" size={28} color={colors.pink} />
+        <TouchableOpacity style={styles.navItem}>
+          <MaterialCommunityIcons
+            name="notebook-heart-outline"
+            size={28}
+            color="#c88ea4"
+          />
           <Text style={styles.navText}>感情ログ</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.navItem}>
-          <Icon name="stats-chart-outline" size={28} color={colors.pink} />
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="stats-chart-outline" size={28} color="#c88ea4" />
           <Text style={styles.navText}>きろく</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.navItem}>
-          <Icon name="bag-handle-outline" size={28} color={colors.pink} />
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="bag-outline" size={28} color="#c88ea4" />
           <Text style={styles.navText}>ショップ</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.navItem}>
-          <Icon name="person-outline" size={28} color={colors.pink} />
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="person-outline" size={28} color="#c88ea4" />
           <Text style={styles.navText}>マイページ</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -97,162 +108,169 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#171d4b",
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginTop: 10,
+    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 18,
   },
 
   headerTitle: {
-    color: colors.pink,
-    fontSize: 28,
+    color: "#f7c7d3",
+    fontSize: 34,
     fontWeight: "700",
   },
 
   line: {
-    height: 1,
-    backgroundColor: colors.pink,
-    marginTop: 20,
+    height: 1.5,
+    backgroundColor: "#d6a8b7",
+    opacity: 0.7,
+  },
+
+  content: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 30,
   },
 
   monsterName: {
-    color: "#fff",
-    fontSize: 24,
+    color: "#ffffff",
+    fontSize: 32,
     fontWeight: "700",
-    marginTop: 30,
-    marginLeft: 30,
+    alignSelf: "flex-start",
+    marginLeft: 34,
+    marginBottom: 10,
   },
 
-  star1: {
+  starsContainer: {
     position: "absolute",
-    top: 170,
-    left: 40,
-    fontSize: 26,
+    top: 100,
+    width: "100%",
+    height: 200,
   },
 
-  star2: {
+  star: {
     position: "absolute",
-    top: 210,
-    left: 120,
-    fontSize: 24,
+    color: "#fff6d5",
+    fontSize: 34,
+    textShadowColor: "#fff6d5",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 18,
   },
 
-  star3: {
+  starBig: {
     position: "absolute",
-    top: 150,
-    right: 60,
-    fontSize: 30,
-  },
-
-  star4: {
-    position: "absolute",
-    top: 220,
-    right: 40,
-    fontSize: 26,
+    color: "#fff6d5",
+    fontSize: 48,
+    textShadowColor: "#fff6d5",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 22,
+    top: 0,
+    right: 80,
   },
 
   monster: {
-    width: 320,
-    height: 320,
+    width: 310,
+    height: 310,
+    marginTop: 70,
     resizeMode: "contain",
-    alignSelf: "center",
-    marginTop: 40,
   },
 
-  chatBubble: {
+  heartBubble: {
     position: "absolute",
     right: 40,
-    top: 330,
-    backgroundColor: "#fff",
-    width: 80,
-    height: 60,
-    borderRadius: 30,
+    top: 280,
+    width: 90,
+    height: 70,
+    backgroundColor: "#ffffff",
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
   },
 
   heart: {
-    fontSize: 30,
+    fontSize: 36,
   },
 
-  statusCard: {
-    width: "85%",
-    alignSelf: "center",
-    backgroundColor: colors.card,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: colors.pink,
-    padding: 20,
-    marginTop: -10,
+  statusBox: {
+    width: "86%",
+    borderWidth: 2,
+    borderColor: "#f3bcc8",
+    borderRadius: 28,
+    padding: 22,
+    marginTop: 20,
+    backgroundColor: "#232b61",
   },
 
-  hungryText: {
-    color: "#fff",
+  statusText: {
+    color: "#ffd4de",
     fontSize: 24,
-    marginBottom: 15,
+    fontWeight: "600",
+    marginBottom: 16,
   },
 
-  percent: {
-    color: colors.pink,
-    fontWeight: "700",
-  },
-
-  progressBg: {
+  progressBar: {
     width: "100%",
-    height: 20,
-    backgroundColor: colors.progressBg,
-    borderRadius: 20,
+    height: 24,
+    backgroundColor: "#51527c",
+    borderRadius: 30,
+    overflow: "hidden",
   },
 
-  progress: {
-    width: "70%",
-    height: 20,
-    backgroundColor: colors.pink,
-    borderRadius: 20,
+  progressFill: {
+    width: "74%",
+    height: "100%",
+    backgroundColor: "#f5c6d2",
+    borderRadius: 30,
   },
 
   feedButton: {
-    width: "80%",
-    height: 90,
-    backgroundColor: colors.pink,
+    width: "74%",
+    height: 92,
+    backgroundColor: "#efb5c5",
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    alignSelf: "center",
-    marginTop: 40,
+    marginTop: 36,
   },
 
-  feedText: {
-    color: "#fff",
-    fontSize: 34,
+  feedButtonText: {
+    color: "#ffffff",
+    fontSize: 30,
     fontWeight: "800",
   },
 
   bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    height: 90,
-    borderTopWidth: 1,
-    borderTopColor: colors.pink,
-    backgroundColor: colors.background,
+    height: 100,
+    borderTopWidth: 1.5,
+    borderColor: "#d6a8b7",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+    backgroundColor: "#171d4b",
   },
 
   navItem: {
     alignItems: "center",
+    justifyContent: "center",
   },
 
   navText: {
-    color: colors.pink,
-    fontSize: 12,
-    marginTop: 5,
+    color: "#c88ea4",
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  navTextActive: {
+    color: "#f7a9bc",
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "700",
   },
 });

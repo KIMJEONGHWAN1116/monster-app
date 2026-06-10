@@ -1,8 +1,8 @@
+// src/styles/colors.js
+
 export default {
-  background: "#1E2554",
-  card: "#2A3165",
-  pink: "#F3B6C6",
-  text: "#FFFFFF",
-  subText: "#E8DCE0",
-  progressBg: "#5B5C87",
+  main: "#1D234F",
+  pink: "#EFB1C1",
+  pinkText: "#F4B7C7",
+  white: "#FFFFFF",
 };
