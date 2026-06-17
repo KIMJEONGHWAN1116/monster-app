@@ -1,10 +1,11 @@
+import { useRef, useState } from "react";
 import {
   Feather,
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 import {
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -13,6 +14,20 @@ import {
 } from "react-native";
 
 export default function Home() {
+  const [isBlinking, setIsBlinking] = useState(false);
+  const blinkRef = useRef(null);
+
+  const handleMonsterPress = () => {
+    if (isBlinking) return;
+
+    setIsBlinking(true);
+
+    setTimeout(() => {
+      blinkRef.current?.reset();
+      blinkRef.current?.play();
+    }, 0);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -37,20 +52,58 @@ export default function Home() {
         <Text style={styles.monsterName}>モンスターの名前</Text>
 
         <View style={styles.starsContainer}>
-          <Text style={styles.star}>✦</Text>
-          <Text style={styles.star}>✦</Text>
+          <Text style={[styles.star, styles.star1]}>✦</Text>
+          <Text style={[styles.star, styles.star2]}>✦</Text>
           <Text style={styles.starBig}>✦</Text>
-          <Text style={styles.star}>✦</Text>
-          <Text style={styles.star}>✦</Text>
-          <Text style={styles.star}>✦</Text>
+          <Text style={[styles.star, styles.star3]}>✦</Text>
+          <Text style={[styles.star, styles.star4]}>✦</Text>
+          <Text style={[styles.star, styles.star5]}>✦</Text>
         </View>
 
-        <Image
-          source={{
-            uri: "https://i.imgur.com/4AiXzf8.png",
-          }}
-          style={styles.monster}
-        />
+        {/* 몬스터 애니메이션 */}
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.monsterWrap}
+          onPress={handleMonsterPress}
+        >
+          {/* 몸통 + 팔 흔들기 */}
+          <View style={[styles.monsterLayer, styles.bodyLayer]}>
+            <LottieView
+              source={require("../assets/lottie/monster_body_idle.json")}
+              autoPlay
+              loop
+              style={styles.lottieFill}
+            />
+          </View>
+
+          {/* 기본 얼굴 */}
+          {!isBlinking && (
+            <View style={[styles.monsterLayer, styles.faceLayer]}>
+              <LottieView
+                source={require("../assets/lottie/monster_face_idle.json")}
+                autoPlay
+                loop
+                style={styles.lottieFill}
+              />
+            </View>
+          )}
+
+          {/* 터치했을 때 눈 깜빡임 */}
+          {isBlinking && (
+            <View style={[styles.monsterLayer, styles.faceLayer]}>
+              <LottieView
+                ref={blinkRef}
+                source={require("../assets/lottie/monster_face_blink.json")}
+                autoPlay
+                loop={false}
+                style={styles.lottieFill}
+                onAnimationFinish={() => {
+                  setIsBlinking(false);
+                }}
+              />
+            </View>
+          )}
+        </TouchableOpacity>
 
         <View style={styles.heartBubble}>
           <Text style={styles.heart}>💗</Text>
@@ -65,9 +118,7 @@ export default function Home() {
         </View>
 
         <TouchableOpacity style={styles.feedButton}>
-          <Text style={styles.feedButtonText}>
-            それ、食べていい？
-          </Text>
+          <Text style={styles.feedButtonText}>それ、食べていい？</Text>
         </TouchableOpacity>
       </View>
 
@@ -163,6 +214,31 @@ const styles = StyleSheet.create({
     textShadowRadius: 18,
   },
 
+  star1: {
+    top: 30,
+    left: 40,
+  },
+
+  star2: {
+    top: 90,
+    left: 90,
+  },
+
+  star3: {
+    top: 80,
+    right: 45,
+  },
+
+  star4: {
+    top: 150,
+    left: 55,
+  },
+
+  star5: {
+    top: 145,
+    right: 90,
+  },
+
   starBig: {
     position: "absolute",
     color: "#fff6d5",
@@ -174,11 +250,35 @@ const styles = StyleSheet.create({
     right: 80,
   },
 
-  monster: {
+  // 몬스터 전체 기준 박스
+  monsterWrap: {
+    position: "relative",
     width: 310,
     height: 310,
     marginTop: 70,
-    resizeMode: "contain",
+  },
+
+  // 각 Lottie 레이어를 같은 위치에 겹치게 함
+  monsterLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  bodyLayer: {
+    zIndex: 1,
+  },
+
+  faceLayer: {
+    zIndex: 2,
+  },
+
+  // LottieView는 감싸는 View 안을 꽉 채우기만 함
+  lottieFill: {
+    width: "100%",
+    height: "100%",
   },
 
   heartBubble: {
