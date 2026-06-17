@@ -1,0 +1,63 @@
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* カラーパレット */
+  --bg-dark:        #1a1a2e;
+  --bg-mid:         #16213e;
+  --accent-pink:    #f4a0b5;
+  --accent-pink-dark: #e07a96;
+  --accent-yellow:  #f5d76e;
+  --monster-purple: #c9b8f0;
+  --text-white:     #ffffff;
+  --text-soft:      #d8d0f0;
+  --bar-bg:         #2e2b50;
+  --bar-fill:       #f4a0b5;
+
+  /* サイズ */
+  --phone-w: 390px;
+  --phone-h: 844px;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #0d0d1a;
+  color: var(--text-white);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ===== スマホフレーム ===== */
+.phone-frame {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: var(--bg-dark);
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 420px) {
+  .phone-frame {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

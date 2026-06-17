@@ -1,38 +1,37 @@
-// src/components/Header.jsx
 
-import { Feather } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from "react-native";
-
-import colors from "../styles/colors";
+const styles = {
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '16px 20px',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
+    background: 'rgba(26,26,46,0.95)',
+    zIndex: 10,
+  },
+  iconBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#d8d0f0',
+    fontSize: '22px',
+    lineHeight: 1,
+    padding: '4px',
+  },
+  title: {
+    fontSize: '18px',
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: '0.05em',
+  },
+}
 
 export default function Header() {
   return (
-    <View style={styles.container}>
-      <Feather name="menu" size={34} color={colors.pinkText} />
-
-      <Text style={styles.title}>マイモンスター</Text>
-
-      <Feather name="bell" size={28} color={colors.pinkText} />
-    </View>
-  );
+    <header style={styles.header}>
+      <button style={styles.iconBtn} aria-label="メニュー">☰</button>
+      <h1 style={styles.title}>マイモンスター</h1>
+      <button style={styles.iconBtn} aria-label="通知">🔔</button>
+    </header>
+  )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 72,
-    borderBottomWidth: 1,
-    borderBottomColor: "#DDA7B6",
-
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-
-    paddingHorizontal: 20,
-  },
-
-  title: {
-    color: "#F6C3D1",
-    fontSize: 28,
-    fontWeight: "800",
-  },
-});
