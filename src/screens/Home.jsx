@@ -6,6 +6,8 @@ import {
 } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import {
+  Animated,
+  PanResponder,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -15,10 +17,22 @@ import {
 
 export default function Home() {
   const [isBlinking, setIsBlinking] = useState(false);
+  const [motion, setMotion] = useState("");
+
   const blinkRef = useRef(null);
 
-  const handleMonsterPress = () => {
-    if (isBlinking) return;
+  const translateY = useRef(new Animated.Value(0)).current;
+  const scaleX = useRef(new Animated.Value(1)).current;
+  const scaleY = useRef(new Animated.Value(1)).current;
+
+  const resetTransform = () => {
+    translateY.setValue(0);
+    scaleX.setValue(1);
+    scaleY.setValue(1);
+  };
+
+  const handleBlink = () => {
+    if (isBlinking || motion !== "") return;
 
     setIsBlinking(true);
 
@@ -26,7 +40,201 @@ export default function Home() {
       blinkRef.current?.reset();
       blinkRef.current?.play();
     }, 0);
+
+    // blink 끝난 뒤 원래 얼굴로 복귀
+    setTimeout(() => {
+      setIsBlinking(false);
+    }, 700);
   };
+
+  const runJump = () => {
+    if (motion !== "" || isBlinking) return;
+
+    setMotion("jump");
+    resetTransform();
+
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: -90,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleX, {
+          toValue: 1.04,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 0.96,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleX, {
+          toValue: 0.96,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 1.06,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: -25,
+          duration: 130,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleX, {
+          toValue: 1.02,
+          duration: 130,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 0.98,
+          duration: 130,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 160,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleX, {
+          toValue: 1,
+          duration: 160,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 1,
+          duration: 160,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => {
+      setMotion("");
+      resetTransform();
+    });
+  };
+
+  const runSquash = () => {
+    if (motion !== "" || isBlinking) return;
+
+    setMotion("squash");
+    resetTransform();
+
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(scaleX, {
+          toValue: 1.16,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 0.78,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      // 찌그러진 상태 유지
+      Animated.delay(1000),
+
+      Animated.parallel([
+        Animated.timing(scaleX, {
+          toValue: 0.96,
+          duration: 120,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 1.08,
+          duration: 120,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.parallel([
+        Animated.timing(scaleX, {
+          toValue: 1.04,
+          duration: 90,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 0.96,
+          duration: 90,
+          useNativeDriver: true,
+        }),
+      ]),
+
+      Animated.parallel([
+        Animated.timing(scaleX, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleY, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => {
+      setTimeout(() => {
+        setMotion("");
+        resetTransform();
+      }, 200);
+    });
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > 8;
+      },
+
+      onPanResponderRelease: (_, gestureState) => {
+        const diffY = gestureState.dy;
+
+        // 터치
+        if (Math.abs(diffY) < 10) {
+          handleBlink();
+          return;
+        }
+
+        // 위로 쓸어올림
+        if (diffY < -50) {
+          runJump();
+          return;
+        }
+
+        // 아래로 쓸어내림
+        if (diffY > 50) {
+          runSquash();
+        }
+      },
+
+      onPanResponderTerminate: () => {
+        resetTransform();
+        setMotion("");
+      },
+    })
+  ).current;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,50 +268,78 @@ export default function Home() {
           <Text style={[styles.star, styles.star5]}>✦</Text>
         </View>
 
-        {/* 몬스터 애니메이션 */}
-        <TouchableOpacity
-          activeOpacity={1}
-          style={styles.monsterWrap}
-          onPress={handleMonsterPress}
-        >
-          {/* 몸통 + 팔 흔들기 */}
-          <View style={[styles.monsterLayer, styles.bodyLayer]}>
-            <LottieView
-              source={require("../assets/lottie/monster_body_idle.json")}
-              autoPlay
-              loop
-              style={styles.lottieFill}
-            />
-          </View>
-
-          {/* 기본 얼굴 */}
-          {!isBlinking && (
-            <View style={[styles.monsterLayer, styles.faceLayer]}>
+        {/* 몬스터가 차지하는 레이아웃 공간 */}
+        <View style={styles.monsterArea}>
+          {/* 실제 크게 보이는 몬스터 */}
+          <Animated.View
+            {...panResponder.panHandlers}
+            style={[
+              styles.monsterWrap,
+              {
+                transform: [{ translateY }, { scaleX }, { scaleY }],
+              },
+            ]}
+          >
+            {/* 몸통 + 팔 흔들기 */}
+            <View
+              pointerEvents="none"
+              style={[styles.monsterLayer, styles.bodyLayer]}
+            >
               <LottieView
-                source={require("../assets/lottie/monster_face_idle.json")}
+                source={require("../assets/lottie/monster_body_idle.json")}
                 autoPlay
                 loop
                 style={styles.lottieFill}
               />
             </View>
-          )}
 
-          {/* 터치했을 때 눈 깜빡임 */}
-          {isBlinking && (
-            <View style={[styles.monsterLayer, styles.faceLayer]}>
-              <LottieView
-                ref={blinkRef}
-                source={require("../assets/lottie/monster_face_blink.json")}
-                autoPlay
-                loop={false}
-                style={styles.lottieFill}
-                onAnimationFinish={() => {
-                  setIsBlinking(false);
-                }}
-              />
-            </View>
-          )}
-        </TouchableOpacity>
+            {/* 기본 얼굴 */}
+            {!isBlinking && motion !== "squash" && (
+              <View
+                pointerEvents="none"
+                style={[styles.monsterLayer, styles.faceLayer]}
+              >
+                <LottieView
+                  source={require("../assets/lottie/monster_face_idle.json")}
+                  autoPlay
+                  loop
+                  style={styles.lottieFill}
+                />
+              </View>
+            )}
+
+            {/* 터치했을 때 눈 깜빡임 */}
+            {isBlinking && (
+              <View
+                pointerEvents="none"
+                style={[styles.monsterLayer, styles.faceLayer]}
+              >
+                <LottieView
+                  ref={blinkRef}
+                  source={require("../assets/lottie/monster_face_blink.json")}
+                  autoPlay
+                  loop={false}
+                  style={styles.lottieFill}
+                />
+              </View>
+            )}
+
+            {/* 아래로 쓸어내렸을 때 찌그러진 표정 */}
+            {motion === "squash" && !isBlinking && (
+              <View
+                pointerEvents="none"
+                style={[styles.monsterLayer, styles.faceLayer]}
+              >
+                <LottieView
+                  source={require("../assets/lottie/monster_face_squash.json")}
+                  autoPlay
+                  loop
+                  style={styles.lottieFill}
+                />
+              </View>
+            )}
+          </Animated.View>
+        </View>
 
         <View style={styles.heartBubble}>
           <Text style={styles.heart}>💗</Text>
@@ -160,6 +396,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#171d4b",
+    overflow: "hidden",
   },
 
   header: {
@@ -250,15 +487,25 @@ const styles = StyleSheet.create({
     right: 80,
   },
 
-  // 몬스터 전체 기준 박스
-  monsterWrap: {
-    position: "relative",
+  // 레이아웃 공간 확보용 박스
+  monsterArea: {
     width: 310,
     height: 310,
     marginTop: 70,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "visible",
+    zIndex: 5,
   },
 
-  // 각 Lottie 레이어를 같은 위치에 겹치게 함
+  // 실제 크게 보이는 몬스터
+  monsterWrap: {
+    position: "absolute",
+    width: 700,
+    height: 700,
+    zIndex: 5,
+  },
+
   monsterLayer: {
     position: "absolute",
     top: 0,
@@ -275,7 +522,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 
-  // LottieView는 감싸는 View 안을 꽉 채우기만 함
   lottieFill: {
     width: "100%",
     height: "100%",
@@ -291,6 +537,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 10,
   },
 
   heart: {
