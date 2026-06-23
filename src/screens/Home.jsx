@@ -8,14 +8,18 @@ import LottieView from "lottie-react-native";
 import {
   Animated,
   PanResponder,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Home() {
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+
   const [isBlinking, setIsBlinking] = useState(false);
   const [motion, setMotion] = useState("");
 
@@ -24,6 +28,17 @@ export default function Home() {
   const translateY = useRef(new Animated.Value(0)).current;
   const scaleX = useRef(new Animated.Value(1)).current;
   const scaleY = useRef(new Animated.Value(1)).current;
+
+  const isSmallScreen = height < 760;
+  const isVerySmallScreen = height < 700;
+
+  const monsterAreaSize = isVerySmallScreen
+    ? Math.min(width * 0.58, 230)
+    : isSmallScreen
+    ? Math.min(width * 0.66, 270)
+    : Math.min(width * 0.74, 310);
+
+  const monsterLottieSize = monsterAreaSize * 2.25;
 
   const resetTransform = () => {
     translateY.setValue(0);
@@ -41,7 +56,6 @@ export default function Home() {
       blinkRef.current?.play();
     }, 0);
 
-    // blink 끝난 뒤 원래 얼굴로 복귀
     setTimeout(() => {
       setIsBlinking(false);
     }, 700);
@@ -56,7 +70,7 @@ export default function Home() {
     Animated.sequence([
       Animated.parallel([
         Animated.timing(translateY, {
-          toValue: -90,
+          toValue: isSmallScreen ? -60 : -90,
           duration: 220,
           useNativeDriver: true,
         }),
@@ -92,7 +106,7 @@ export default function Home() {
 
       Animated.parallel([
         Animated.timing(translateY, {
-          toValue: -25,
+          toValue: isSmallScreen ? -16 : -25,
           duration: 130,
           useNativeDriver: true,
         }),
@@ -151,7 +165,6 @@ export default function Home() {
         }),
       ]),
 
-      // 찌그러진 상태 유지
       Animated.delay(1000),
 
       Animated.parallel([
@@ -211,19 +224,16 @@ export default function Home() {
       onPanResponderRelease: (_, gestureState) => {
         const diffY = gestureState.dy;
 
-        // 터치
         if (Math.abs(diffY) < 10) {
           handleBlink();
           return;
         }
 
-        // 위로 쓸어올림
         if (diffY < -50) {
           runJump();
           return;
         }
 
-        // 아래로 쓸어내림
         if (diffY > 50) {
           runSquash();
         }
@@ -237,13 +247,22 @@ export default function Home() {
   ).current;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.header}>
         <TouchableOpacity>
           <Feather name="menu" size={34} color="#f7c7d3" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>マイモンスター</Text>
+        <Text
+          style={[
+            styles.headerTitle,
+            {
+              fontSize: isSmallScreen ? 28 : 34,
+            },
+          ]}
+        >
+          マイモンスター
+        </Text>
 
         <TouchableOpacity>
           <Ionicons
@@ -257,9 +276,27 @@ export default function Home() {
       <View style={styles.line} />
 
       <View style={styles.content}>
-        <Text style={styles.monsterName}>モンスターの名前</Text>
+        <Text
+          style={[
+            styles.monsterName,
+            {
+              fontSize: isSmallScreen ? 25 : 32,
+              marginTop: isSmallScreen ? 14 : 26,
+              marginBottom: isSmallScreen ? 0 : 8,
+            },
+          ]}
+        >
+          モンスターの名前
+        </Text>
 
-        <View style={styles.starsContainer}>
+        <View
+          style={[
+            styles.starsContainer,
+            {
+              top: isSmallScreen ? 68 : 105,
+            },
+          ]}
+        >
           <Text style={[styles.star, styles.star1]}>✦</Text>
           <Text style={[styles.star, styles.star2]}>✦</Text>
           <Text style={styles.starBig}>✦</Text>
@@ -268,19 +305,27 @@ export default function Home() {
           <Text style={[styles.star, styles.star5]}>✦</Text>
         </View>
 
-        {/* 몬스터가 차지하는 레이아웃 공간 */}
-        <View style={styles.monsterArea}>
-          {/* 실제 크게 보이는 몬스터 */}
+        <View
+          style={[
+            styles.monsterArea,
+            {
+              width: monsterAreaSize,
+              height: monsterAreaSize,
+              marginTop: isVerySmallScreen ? 10 : isSmallScreen ? 20 : 48,
+            },
+          ]}
+        >
           <Animated.View
             {...panResponder.panHandlers}
             style={[
               styles.monsterWrap,
               {
+                width: monsterLottieSize,
+                height: monsterLottieSize,
                 transform: [{ translateY }, { scaleX }, { scaleY }],
               },
             ]}
           >
-            {/* 몸통 + 팔 흔들기 */}
             <View
               pointerEvents="none"
               style={[styles.monsterLayer, styles.bodyLayer]}
@@ -293,7 +338,6 @@ export default function Home() {
               />
             </View>
 
-            {/* 기본 얼굴 */}
             {!isBlinking && motion !== "squash" && (
               <View
                 pointerEvents="none"
@@ -308,7 +352,6 @@ export default function Home() {
               </View>
             )}
 
-            {/* 터치했을 때 눈 깜빡임 */}
             {isBlinking && (
               <View
                 pointerEvents="none"
@@ -324,7 +367,6 @@ export default function Home() {
               </View>
             )}
 
-            {/* 아래로 쓸어내렸을 때 찌그러진 표정 */}
             {motion === "squash" && !isBlinking && (
               <View
                 pointerEvents="none"
@@ -341,50 +383,120 @@ export default function Home() {
           </Animated.View>
         </View>
 
-        <View style={styles.heartBubble}>
-          <Text style={styles.heart}>💗</Text>
+        <View
+          style={[
+            styles.heartBubble,
+            {
+              right: width * 0.1,
+              top: isVerySmallScreen ? 190 : isSmallScreen ? 220 : 280,
+              width: isSmallScreen ? 76 : 90,
+              height: isSmallScreen ? 58 : 70,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.heart,
+              {
+                fontSize: isSmallScreen ? 30 : 36,
+              },
+            ]}
+          >
+            💗
+          </Text>
         </View>
 
-        <View style={styles.statusBox}>
-          <Text style={styles.statusText}>おなか 70%</Text>
+        <View
+          style={[
+            styles.statusBox,
+            {
+              padding: isVerySmallScreen ? 13 : isSmallScreen ? 15 : 20,
+              marginTop: isVerySmallScreen ? 6 : isSmallScreen ? 10 : 18,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusText,
+              {
+                fontSize: isSmallScreen ? 20 : 24,
+                marginBottom: isSmallScreen ? 9 : 14,
+              },
+            ]}
+          >
+            おなか 70%
+          </Text>
 
-          <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressBar,
+              {
+                height: isSmallScreen ? 18 : 24,
+              },
+            ]}
+          >
             <View style={styles.progressFill} />
           </View>
         </View>
 
-        <TouchableOpacity style={styles.feedButton}>
-          <Text style={styles.feedButtonText}>それ、食べていい？</Text>
+        <TouchableOpacity
+          style={[
+            styles.feedButton,
+            {
+              height: isVerySmallScreen ? 56 : isSmallScreen ? 64 : 76,
+              marginTop: isVerySmallScreen ? 10 : isSmallScreen ? 14 : 24,
+              marginBottom: isVerySmallScreen ? 6 : 10,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.feedButtonText,
+              {
+                fontSize: isVerySmallScreen ? 20 : isSmallScreen ? 22 : 26,
+              },
+            ]}
+          >
+            それ、食べていい？
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.bottomNav}>
+      <View
+        style={[
+          styles.bottomNav,
+          {
+            height: isSmallScreen ? 74 + insets.bottom : 86 + insets.bottom,
+            paddingBottom: insets.bottom,
+          },
+        ]}
+      >
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={28} color="#f7a9bc" />
+          <Ionicons name="home" size={26} color="#f7a9bc" />
           <Text style={styles.navTextActive}>ホーム</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
           <MaterialCommunityIcons
             name="notebook-heart-outline"
-            size={28}
+            size={26}
             color="#c88ea4"
           />
           <Text style={styles.navText}>感情ログ</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="stats-chart-outline" size={28} color="#c88ea4" />
+          <Ionicons name="stats-chart-outline" size={26} color="#c88ea4" />
           <Text style={styles.navText}>きろく</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="bag-outline" size={28} color="#c88ea4" />
+          <Ionicons name="bag-outline" size={26} color="#c88ea4" />
           <Text style={styles.navText}>ショップ</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={28} color="#c88ea4" />
+          <Ionicons name="person-outline" size={26} color="#c88ea4" />
           <Text style={styles.navText}>マイページ</Text>
         </TouchableOpacity>
       </View>
@@ -404,13 +516,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: 18,
-    paddingBottom: 18,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
 
   headerTitle: {
     color: "#f7c7d3",
-    fontSize: 34,
     fontWeight: "700",
   },
 
@@ -423,29 +534,28 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 30,
+    position: "relative",
+    overflow: "hidden",
   },
 
   monsterName: {
     color: "#ffffff",
-    fontSize: 32,
     fontWeight: "700",
     alignSelf: "flex-start",
     marginLeft: 34,
-    marginBottom: 10,
   },
 
   starsContainer: {
     position: "absolute",
-    top: 100,
     width: "100%",
-    height: 200,
+    height: 220,
+    zIndex: 1,
   },
 
   star: {
     position: "absolute",
     color: "#fff6d5",
-    fontSize: 34,
+    fontSize: 32,
     textShadowColor: "#fff6d5",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 18,
@@ -479,7 +589,7 @@ const styles = StyleSheet.create({
   starBig: {
     position: "absolute",
     color: "#fff6d5",
-    fontSize: 48,
+    fontSize: 46,
     textShadowColor: "#fff6d5",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 22,
@@ -487,22 +597,15 @@ const styles = StyleSheet.create({
     right: 80,
   },
 
-  // 레이아웃 공간 확보용 박스
   monsterArea: {
-    width: 310,
-    height: 310,
-    marginTop: 70,
     alignItems: "center",
     justifyContent: "center",
     overflow: "visible",
     zIndex: 5,
   },
 
-  // 실제 크게 보이는 몬스터
   monsterWrap: {
     position: "absolute",
-    width: 700,
-    height: 700,
     zIndex: 5,
   },
 
@@ -529,10 +632,6 @@ const styles = StyleSheet.create({
 
   heartBubble: {
     position: "absolute",
-    right: 40,
-    top: 280,
-    width: 90,
-    height: 70,
     backgroundColor: "#ffffff",
     borderRadius: 40,
     justifyContent: "center",
@@ -540,30 +639,24 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  heart: {
-    fontSize: 36,
-  },
+  heart: {},
 
   statusBox: {
     width: "86%",
     borderWidth: 2,
     borderColor: "#f3bcc8",
-    borderRadius: 28,
-    padding: 22,
-    marginTop: 20,
+    borderRadius: 26,
     backgroundColor: "#232b61",
+    zIndex: 20,
   },
 
   statusText: {
     color: "#ffd4de",
-    fontSize: 24,
     fontWeight: "600",
-    marginBottom: 16,
   },
 
   progressBar: {
     width: "100%",
-    height: 24,
     backgroundColor: "#51527c",
     borderRadius: 30,
     overflow: "hidden",
@@ -578,22 +671,19 @@ const styles = StyleSheet.create({
 
   feedButton: {
     width: "74%",
-    height: 92,
     backgroundColor: "#efb5c5",
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 36,
+    zIndex: 20,
   },
 
   feedButtonText: {
     color: "#ffffff",
-    fontSize: 30,
     fontWeight: "800",
   },
 
   bottomNav: {
-    height: 100,
     borderTopWidth: 1.5,
     borderColor: "#d6a8b7",
     flexDirection: "row",
@@ -605,19 +695,20 @@ const styles = StyleSheet.create({
   navItem: {
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
   },
 
   navText: {
     color: "#c88ea4",
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 3,
+    fontSize: 12,
     fontWeight: "600",
   },
 
   navTextActive: {
     color: "#f7a9bc",
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 3,
+    fontSize: 12,
     fontWeight: "700",
   },
 });
